@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_currentLocation"
+            android:icon="@drawable/ic_my_location_black_24dp"
+            android:title="@string/title_current_location" />
+        <item
+            android:id="@+id/nav_selectLocation"
+            android:icon="@drawable/ic_location_city_black_24dp"
+            android:title="@string/title_select_location" />
+        <item
+            android:id="@+id/nav_googleMap"
+            android:icon="@drawable/ic_location_on_black_24dp"
+            android:title="@string/title_google_map" />
+        <item
+            android:id="@+id/nav_note"
+            android:icon="@drawable/ic_note_black_24dp"
+            android:title="@string/title_tenki_note" />
+        <item
+            android:id="@+id/nav_setting"
+            android:icon="@drawable/ic_menu_setting"
+            android:title="@string/title_setting" />
+    </group>
+
+    <item android:title="@string/title_introduction">
+        <menu>
+            <item
+                android:id="@+id/nav_about"
+                android:icon="@drawable/ic_menu_info"
+                android:title="@string/title_about" />
+        </menu>
+    </item>
+
+</menu>
