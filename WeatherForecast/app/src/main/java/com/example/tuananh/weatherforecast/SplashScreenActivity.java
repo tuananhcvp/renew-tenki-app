@@ -13,6 +13,17 @@ import com.example.tuananh.weatherforecast.application.BaseActivity;
 import com.example.tuananh.weatherforecast.utils.LocationService;
 import com.example.tuananh.weatherforecast.utils.SharedPreference;
 import com.example.tuananh.weatherforecast.utils.Utils;
+import com.google.gson.Gson;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import es.dmoral.toasty.Toasty;
 
@@ -26,6 +37,10 @@ public class SplashScreenActivity extends BaseActivity {
     public static double latitude;
     public static double longitude;
 
+    public static String[] country;
+    public static String[] cityArr;
+    public static List<String> japanCityList;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,6 +49,8 @@ public class SplashScreenActivity extends BaseActivity {
         setContentView(R.layout.activity_splash_screen);
 
         initService();
+        getAllCityData();
+        getJapanCityData();
 
         int posLanguage = SharedPreference.getInstance(this).getInt("Language", 0);
         Log.e("LANGUAGE", "==> " + posLanguage);
@@ -92,5 +109,67 @@ public class SplashScreenActivity extends BaseActivity {
     public void initService() {
         Intent intent = new Intent(this, LocationService.class);
         startService(intent);
+    }
+
+    //Get cities in Japan from json file
+    private void getJapanCityData() {
+        japanCityList = new ArrayList<>();
+        try {
+            JSONArray jsonArray = new JSONArray(loadJSONFromAsset("japancity.json"));
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject object = (JSONObject) jsonArray.get(i);
+                String str = (String) object.get("slug");
+                String city = str.substring(0, 1).toUpperCase() + str.substring(1);
+                japanCityList.add(city);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        Collections.sort(japanCityList, String.CASE_INSENSITIVE_ORDER);
+        Log.e("JAPAN CITY", "==> " + new Gson().toJson(japanCityList));
+    }
+
+    //Get cities in the world from json file
+    private void getAllCityData() {
+        ArrayList<String> city = new ArrayList<>();
+        try {
+            JSONObject jsonRoot = new JSONObject(loadJSONFromAsset("cities.json"));
+            JSONArray listCountryArr = new JSONArray();
+            listCountryArr = jsonRoot.names();
+            country = new String[listCountryArr.length()];
+            for (int i = 0; i < listCountryArr.length(); i++) {
+                country[i] = listCountryArr.getString(i);
+            }
+
+            for (String c : country) {
+                JSONArray jsonArray = jsonRoot.getJSONArray(c);
+                for (int m = 0; m < jsonArray.length(); m++) {
+                    city.add(jsonArray.getString(m));
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        cityArr = new String[city.size()];
+        for (int j = 0; j < city.size(); j++) {
+            cityArr[j] = city.get(j);
+        }
+    }
+
+    private String loadJSONFromAsset(String file) {
+        String json = null;
+        try {
+            InputStream is = this.getAssets().open(file);
+            int size = is.available();
+            byte[] buffer = new byte[size];
+            is.read(buffer);
+            is.close();
+            json = new String(buffer, "UTF-8");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return json;
     }
 }
