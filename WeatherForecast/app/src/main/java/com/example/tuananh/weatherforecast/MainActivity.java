@@ -1,10 +1,7 @@
 package com.example.tuananh.weatherforecast;
 
-import android.*;
 import android.annotation.TargetApi;
 import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
@@ -26,7 +23,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.example.tuananh.weatherforecast.application.BaseActivity;
+import com.example.tuananh.weatherforecast.fragment.CurrentLocationFragment;
+import com.example.tuananh.weatherforecast.utils.application.BaseActivity;
 import com.example.tuananh.weatherforecast.utils.LocationService;
 import com.example.tuananh.weatherforecast.utils.SharedPreference;
 import com.example.tuananh.weatherforecast.utils.Utils;
@@ -39,7 +37,6 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStates;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
-import com.google.android.gms.maps.model.LatLng;
 
 public class MainActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -114,7 +111,7 @@ public class MainActivity extends BaseActivity
             navigationView.getMenu().getItem(0).setChecked(true);
             navigationView.getMenu().getItem(5).getSubMenu().getItem(0).setChecked(false);
 
-//            callFragment(CurrentLocationFragment.newInstance());
+            callFragment(CurrentLocationFragment.newInstance());
 
         } else if (id == R.id.nav_selectLocation) {
             navigationView.getMenu().getItem(1).setChecked(true);
@@ -165,7 +162,7 @@ public class MainActivity extends BaseActivity
             }
             settingsRequest();
         } else {
-//            callFragment(CurrentLocationFragment.newInstance());
+            callFragment(CurrentLocationFragment.newInstance());
         }
 
     }
@@ -208,7 +205,7 @@ public class MainActivity extends BaseActivity
                     @Override
                     public void run() {
                         dialog.dismiss();
-//                        callFragment(CurrentLocationFragment.newInstance());
+                        callFragment(CurrentLocationFragment.newInstance());
                     }
                 }, 4500);
 
@@ -313,4 +310,9 @@ public class MainActivity extends BaseActivity
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
     }
+
+    public void setActionBarName(String title) {
+        Utils.setActionbarTitle(title, this, getSupportActionBar());
+    }
+
 }

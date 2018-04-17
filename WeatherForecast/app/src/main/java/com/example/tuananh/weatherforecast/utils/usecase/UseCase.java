@@ -1,4 +1,4 @@
-package com.example.tuananh.weatherforecast.usecase;
+package com.example.tuananh.weatherforecast.utils.usecase;
 
 import io.reactivex.Scheduler;
 

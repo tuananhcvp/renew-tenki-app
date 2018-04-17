@@ -1,6 +1,7 @@
 package com.example.tuananh.weatherforecast.di;
 
 import com.example.tuananh.weatherforecast.MainActivity;
+import com.example.tuananh.weatherforecast.fragment.CurrentLocationFragment;
 
 import dagger.Subcomponent;
 
@@ -13,5 +14,6 @@ import dagger.Subcomponent;
 public interface ActivityComponent {
     void inject(MainActivity mainActivity);
 
+    void inject(CurrentLocationFragment fragment);
 }
 

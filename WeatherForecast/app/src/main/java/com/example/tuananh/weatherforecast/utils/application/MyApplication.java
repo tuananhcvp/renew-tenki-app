@@ -1,4 +1,4 @@
-package com.example.tuananh.weatherforecast.application;
+package com.example.tuananh.weatherforecast.utils.application;
 
 import android.app.Application;
 

@@ -9,7 +9,7 @@ import android.util.Log;
 import android.view.Window;
 import android.widget.Toast;
 
-import com.example.tuananh.weatherforecast.application.BaseActivity;
+import com.example.tuananh.weatherforecast.utils.application.BaseActivity;
 import com.example.tuananh.weatherforecast.utils.LocationService;
 import com.example.tuananh.weatherforecast.utils.SharedPreference;
 import com.example.tuananh.weatherforecast.utils.Utils;
