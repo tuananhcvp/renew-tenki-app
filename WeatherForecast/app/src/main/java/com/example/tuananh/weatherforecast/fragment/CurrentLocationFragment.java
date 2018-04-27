@@ -125,7 +125,7 @@ public class CurrentLocationFragment extends Fragment {
         parameter.lon = lon;
         parameter.appId = appId;
 
-        useCase.excute(parameter, new WeatherCurrentUseCase.UseCaseCallback() {
+        useCase.execute(parameter, new WeatherCurrentUseCase.UseCaseCallback() {
             @Override
             public void onSuccess(OpenWeatherJSon entity) {
                 viewModel.setModel(entity);

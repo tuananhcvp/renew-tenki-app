@@ -2,7 +2,7 @@ package com.example.tuananh.weatherforecast.utils.usecase;
 
 import android.content.Context;
 
-import com.example.tuananh.weatherforecast.model.current.OpenWeatherJSon;
+import com.example.tuananh.weatherforecast.model.daily.OpenWeatherDailyJSon;
 import com.example.tuananh.weatherforecast.utils.SharedPreference;
 import com.example.tuananh.weatherforecast.utils.api.WeatherRepository;
 
@@ -14,39 +14,39 @@ import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 
 /**
- * Created by anh on 2018/04/16.
+ * Created by anh on 2018/04/24.
  */
 
-public class WeatherCurrentUseCase extends UseCase {
+public class WeatherDailyUseCase extends UseCase {
     private WeatherRepository weatherRepository;
     private Context context;
 
     @Inject
-    public WeatherCurrentUseCase(WeatherRepository weatherRepository, Context context,
-                                 @Named("executeScheduler") Scheduler threadExecutor,
-                                 @Named("postScheduler") Scheduler postExecutionThread) {
+    public WeatherDailyUseCase(@Named("executeScheduler") Scheduler threadExecutor,
+                               @Named("postScheduler") Scheduler postExecutionThread,
+                               WeatherRepository weatherRepository, Context context) {
         super(threadExecutor, postExecutionThread);
         this.weatherRepository = weatherRepository;
         this.context = context;
     }
 
-    public void execute(RequestParameter parameter, UseCaseCallback callback) {
+    public void execute(WeatherDailyUseCase.RequestParameter parameter, UseCaseCallback callback) {
         int posLanguage = SharedPreference.getInstance(context).getInt("Language", 0);
 
-        SingleOnSubscribe<OpenWeatherJSon> emitter = e -> {
+        SingleOnSubscribe<OpenWeatherDailyJSon> emitter = e -> {
             switch (parameter.type) {
-                case RequestParameter.TYPE_LOCATION:
+                case WeatherDailyUseCase.RequestParameter.TYPE_LOCATION:
                     if (posLanguage == 1) {
-                        e.onSuccess(weatherRepository.getCurrentWeatherByLocation(parameter.lat, parameter.lon, "ja", parameter.appId));
+                        e.onSuccess(weatherRepository.getDailyWeatherByLocation(parameter.lat, parameter.lon, "ja", parameter.appId));
                     } else {
-                        e.onSuccess(weatherRepository.getCurrentWeatherByLocation(parameter.lat, parameter.lon, parameter.appId));
+                        e.onSuccess(weatherRepository.getDailyWeatherByLocation(parameter.lat, parameter.lon, parameter.appId));
                     }
                     break;
-                case RequestParameter.TYPE_NAME:
+                case WeatherDailyUseCase.RequestParameter.TYPE_NAME:
                     if (posLanguage == 1) {
-                        e.onSuccess(weatherRepository.getCurrentWeatherByName(parameter.cityName, "ja", parameter.appId));
+                        e.onSuccess(weatherRepository.getDailyWeatherByName(parameter.cityName, "ja", parameter.appId));
                     } else {
-                        e.onSuccess(weatherRepository.getCurrentWeatherByName(parameter.cityName, parameter.appId));
+                        e.onSuccess(weatherRepository.getDailyWeatherByName(parameter.cityName, parameter.appId));
                     }
                     break;
                 default:
@@ -64,7 +64,7 @@ public class WeatherCurrentUseCase extends UseCase {
     }
 
     public interface UseCaseCallback {
-        void onSuccess(OpenWeatherJSon entity);
+        void onSuccess(OpenWeatherDailyJSon entity);
 
         void onError(Throwable t);
     }
