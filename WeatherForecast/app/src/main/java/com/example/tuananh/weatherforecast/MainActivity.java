@@ -23,7 +23,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.example.tuananh.weatherforecast.fragment.CurrentLocationFragment;
 import com.example.tuananh.weatherforecast.utils.application.BaseActivity;
 import com.example.tuananh.weatherforecast.utils.LocationService;
 import com.example.tuananh.weatherforecast.utils.SharedPreference;

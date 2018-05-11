@@ -1,7 +1,7 @@
 package com.example.tuananh.weatherforecast.di;
 
 import com.example.tuananh.weatherforecast.MainActivity;
-import com.example.tuananh.weatherforecast.fragment.CurrentLocationFragment;
+import com.example.tuananh.weatherforecast.CurrentLocationFragment;
 
 import dagger.Subcomponent;
 
