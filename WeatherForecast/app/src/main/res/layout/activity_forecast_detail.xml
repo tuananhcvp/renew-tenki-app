@@ -51,7 +51,7 @@
                     />
 
                 <com.sileria.android.view.HorzListView
-                    android:id="@+id/lvDailyWeather"
+                    android:id="@+id/listViewDaily"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 

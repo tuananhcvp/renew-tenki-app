@@ -20,8 +20,8 @@ public class Temp {
     public double night;
 
     @SerializedName("eve")
-    public double eve;
+    public double evening;
 
     @SerializedName("morn")
-    public double morn;
+    public double morning;
 }

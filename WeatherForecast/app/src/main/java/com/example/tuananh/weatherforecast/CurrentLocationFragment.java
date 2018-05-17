@@ -29,7 +29,7 @@ public class CurrentLocationFragment extends Fragment {
     @Inject
     WeatherCurrentUseCase useCase;
 
-    private String curAddress = "";
+    private String currentAddress = "";
     private FragmentCurrentLocationBinding binding;
     private String appId;
 
@@ -99,12 +99,12 @@ public class CurrentLocationFragment extends Fragment {
                 if (!Utils.isNetworkConnected(getActivity())) {
                     showToastCheckInternet();
                 } else {
-                    if (!curAddress.equalsIgnoreCase("")) {
-//                        Intent detailIntent = new Intent(getActivity(), ForecastDetailActivity.class);
+                    if (!currentAddress.equalsIgnoreCase("")) {
+                        Intent detailIntent = new Intent(getActivity(), ForecastDetailActivity.class);
 //                        detailIntent.putExtra("CurrentLatitude", SplashScreenActivity.latitude);
 //                        detailIntent.putExtra("CurrentLongitude", SplashScreenActivity.longitude);
-//                        detailIntent.putExtra("CurrentAddressName", curLocation);
-//                        startActivity(detailIntent);
+                        detailIntent.putExtra("CurrentAddressName", currentAddress);
+                        startActivity(detailIntent);
                     } else {
                         Utils.showToastNotify(getContext(), getString(R.string.check_data_not_found));
                     }
@@ -126,7 +126,7 @@ public class CurrentLocationFragment extends Fragment {
             @Override
             public void onSuccess(OpenWeatherJSon entity) {
                 viewModel.setModel(entity);
-                curAddress = entity.name;
+                currentAddress = entity.name;
             }
 
             @Override

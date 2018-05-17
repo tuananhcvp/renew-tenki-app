@@ -134,8 +134,7 @@ public class SplashScreenActivity extends BaseActivity {
         ArrayList<String> city = new ArrayList<>();
         try {
             JSONObject jsonRoot = new JSONObject(loadJSONFromAsset("cities.json"));
-            JSONArray listCountryArr = new JSONArray();
-            listCountryArr = jsonRoot.names();
+            JSONArray listCountryArr = jsonRoot.names();
             country = new String[listCountryArr.length()];
             for (int i = 0; i < listCountryArr.length(); i++) {
                 country[i] = listCountryArr.getString(i);
