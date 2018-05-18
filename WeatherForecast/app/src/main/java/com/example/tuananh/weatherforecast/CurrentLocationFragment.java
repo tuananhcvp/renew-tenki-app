@@ -74,7 +74,7 @@ public class CurrentLocationFragment extends Fragment {
         binding.setCurrentModel(viewModel);
 
         appId = getActivity().getResources().getString(R.string.appid_weather);
-        return layout;
+        return binding.getRoot();
     }
 
     @Override

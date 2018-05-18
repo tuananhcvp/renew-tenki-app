@@ -116,7 +116,7 @@ public class MainActivity extends BaseActivity
             navigationView.getMenu().getItem(1).setChecked(true);
             navigationView.getMenu().getItem(5).getSubMenu().getItem(0).setChecked(false);
 
-//            callFragment(SelectLocationFragment.newInstance());
+            callFragment(SelectLocationFragment.newInstance());
 
         } else if (id == R.id.nav_googleMap) {
 //            Intent mapIntent = new Intent(MainActivity.this, WeatherMapsActivity.class);
