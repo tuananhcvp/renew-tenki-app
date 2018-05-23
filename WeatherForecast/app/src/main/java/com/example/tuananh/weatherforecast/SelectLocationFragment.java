@@ -83,35 +83,24 @@ public class SelectLocationFragment extends Fragment {
             }
         });
 
-        binding.autoComplexTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Utils.hideSoftKeyboard(getContext(), view);
-            }
-        });
+        binding.autoComplexTextView.setOnItemClickListener((adapterView, view, i, l) -> Utils.hideSoftKeyboard(getContext(), view));
 
         adapterJapanCity = new ArrayAdapter<String>(getContext(), R.layout.simple_list_white_text, SplashScreenActivity.japanCityList);
         binding.lvJapanCity.setAdapter(adapterJapanCity);
 
-        binding.lvJapanCity.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                Intent intent = new Intent(getActivity(), SelectedLocationWeatherActivity.class);
-//                intent.putExtra("SelectedAddress", MainActivity.japanCityList.get(position));
-//                startActivity(intent);
-            }
+        binding.lvJapanCity.setOnItemClickListener((parent, view, position, id) -> {
+            Intent intent = new Intent(getActivity(), SelectedLocationWeatherActivity.class);
+            intent.putExtra("SelectedAddress", SplashScreenActivity.japanCityList.get(position));
+            startActivity(intent);
         });
 
-        binding.btnSeeWeather.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (binding.autoComplexTextView.getText().toString().equals("")) {
-                    Toasty.info(getActivity(), getResources().getString(R.string.input_address), Toast.LENGTH_SHORT).show();
-                } else {
-//                    Intent intent = new Intent(getActivity(), SelectedLocationWeatherActivity.class);
-//                    intent.putExtra("SelectedAddress", binding.autoComplexTextView.getText().toString());
-//                    startActivity(intent);
-                }
+        binding.btnSeeWeather.setOnClickListener(view -> {
+            if (binding.autoComplexTextView.getText().toString().equals("")) {
+                Toasty.info(getActivity(), getResources().getString(R.string.input_address), Toast.LENGTH_SHORT).show();
+            } else {
+                Intent intent = new Intent(getActivity(), SelectedLocationWeatherActivity.class);
+                intent.putExtra("SelectedAddress", binding.autoComplexTextView.getText().toString());
+                startActivity(intent);
             }
         });
 

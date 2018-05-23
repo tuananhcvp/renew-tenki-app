@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -21,6 +22,7 @@ import com.example.tuananh.weatherforecast.model.daily.OpenWeatherDailyJSon;
 import com.example.tuananh.weatherforecast.model.nextday.ListItem;
 import com.example.tuananh.weatherforecast.model.nextday.OpenWeatherNextDaysJSon;
 import com.example.tuananh.weatherforecast.utils.SharedPreference;
+import com.example.tuananh.weatherforecast.utils.Utils;
 import com.example.tuananh.weatherforecast.utils.application.BaseActivity;
 import com.example.tuananh.weatherforecast.utils.usecase.WeatherDailyUseCase;
 import com.example.tuananh.weatherforecast.utils.usecase.WeatherNextDayUseCase;
@@ -71,6 +73,9 @@ public class ForecastDetailActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Utils.setActionbarTitle(getResources().getString(R.string.title_forecast_detail), this, getSupportActionBar());
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         getComponent().inject(this);
 
@@ -78,6 +83,17 @@ public class ForecastDetailActivity extends BaseActivity {
         binding.setViewModel(viewModel);
 
         init();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                this.finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     private void init() {
@@ -95,7 +111,8 @@ public class ForecastDetailActivity extends BaseActivity {
             viewModel.setAddress(currentAddress);
             loadWeather(TYPE_CURRENT_ADDRESS);
         } else if (selectedAddress != null) {
-
+            viewModel.setAddress(selectedAddress);
+            loadWeather(TYPE_SELECTED_ADDRESS);
         }
 
         adapter.setCallback(position -> {
@@ -115,26 +132,7 @@ public class ForecastDetailActivity extends BaseActivity {
                 parameter.lat = SplashScreenActivity.latitude;
                 parameter.lon = SplashScreenActivity.longitude;
 
-                dailyUseCase.execute(parameter, new WeatherDailyUseCase.UseCaseCallback() {
-                    @Override
-                    public void onSuccess(OpenWeatherDailyJSon entity) {
-                        Log.e("TEST_TA", "DAILY WEATHER ==> " + new Gson().toJson(entity));
-
-                        for (int i = 0;i < 8;i++) {
-                            String temp = format.format(entity.list.get(i).main.temp-273.15)+"°C";
-                            dailyTemp[i] = temp;
-                            dailyIcon[i] = entity.list.get(i).weather.get(0).icon;
-                        }
-
-                        HorizontalListViewDailyAdapter dailyAdapter = new HorizontalListViewDailyAdapter(ForecastDetailActivity.this, dailyTime, dailyTemp, dailyIcon);
-                        binding.listViewDaily.setAdapter(dailyAdapter);
-                    }
-
-                    @Override
-                    public void onError(Throwable t) {
-                        // TODO onError
-                    }
-                });
+                loadDailyWeather(parameter);
 
                 WeatherNextDayUseCase.RequestParameter requestParameter = new WeatherNextDayUseCase.RequestParameter();
                 requestParameter.type = WeatherDailyUseCase.RequestParameter.TYPE_LOCATION;
@@ -142,38 +140,25 @@ public class ForecastDetailActivity extends BaseActivity {
                 requestParameter.lat = SplashScreenActivity.latitude;
                 requestParameter.lon = SplashScreenActivity.longitude;
 
-                nextDayUseCase.execute(requestParameter, new WeatherNextDayUseCase.UseCaseCallback() {
-                    @Override
-                    public void onSuccess(OpenWeatherNextDaysJSon entity) {
-                        Log.e("TEST_TA", "NEXTDAYS WEATHER ==> " + new Gson().toJson(entity));
-                        nextDaysEntity = entity;
-
-                        for (int i = 0;i < 7;i++) {
-                            String tempMax = format.format(entity.list.get(i+1).temp.max-273.15) + "°C";
-                            String tempMin = format.format(entity.list.get(i+1).temp.min-273.15) + "°C";
-                            String icon = entity.list.get(i+1).weather.get(0).icon;
-
-                            NextDaysItem item = new NextDaysItem();
-                            item.date = nextDates[i];
-                            item.dayOfWeek = dayOfWeek[i];
-                            item.maxMinTemp = tempMax + "/" + tempMin;
-                            item.imageIconUrl = getResources().getString(R.string.base_icon_url) + icon + ".png";
-
-                            itemList.add(item);
-                        }
-
-                        adapter.addAll(itemList);
-                    }
-
-                    @Override
-                    public void onError(Throwable t) {
-                        // TODO onError
-                    }
-                });
+                loadNextDaysWeather(requestParameter);
 
                 break;
 
             case TYPE_SELECTED_ADDRESS:
+                WeatherDailyUseCase.RequestParameter parameter2 = new WeatherDailyUseCase.RequestParameter();
+                parameter2.type = WeatherDailyUseCase.RequestParameter.TYPE_NAME;
+                parameter2.appId = appId;
+                parameter2.cityName = selectedAddress;
+
+                loadDailyWeather(parameter2);
+
+                WeatherNextDayUseCase.RequestParameter requestParameter2 = new WeatherNextDayUseCase.RequestParameter();
+                requestParameter2.type = WeatherDailyUseCase.RequestParameter.TYPE_NAME;
+                requestParameter2.appId = appId;
+                requestParameter2.cityName = selectedAddress;
+
+                loadNextDaysWeather(requestParameter2);
+
                 break;
 
             default:
@@ -208,6 +193,61 @@ public class ForecastDetailActivity extends BaseActivity {
             Date date = calendar.getTime();
             nextDates[i - 1] = dateFormat.format(date);
         }
+    }
+
+    private void loadDailyWeather(WeatherDailyUseCase.RequestParameter parameter) {
+        dailyUseCase.execute(parameter, new WeatherDailyUseCase.UseCaseCallback() {
+            @Override
+            public void onSuccess(OpenWeatherDailyJSon entity) {
+                Log.e("TEST_TA", "DAILY WEATHER ==> " + new Gson().toJson(entity));
+
+                for (int i = 0;i < 8;i++) {
+                    String temp = format.format(entity.list.get(i).main.temp-273.15)+"°C";
+                    dailyTemp[i] = temp;
+                    dailyIcon[i] = entity.list.get(i).weather.get(0).icon;
+                }
+
+                HorizontalListViewDailyAdapter dailyAdapter = new HorizontalListViewDailyAdapter(ForecastDetailActivity.this, dailyTime, dailyTemp, dailyIcon);
+                binding.listViewDaily.setAdapter(dailyAdapter);
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                // TODO onError
+            }
+        });
+    }
+
+    private void loadNextDaysWeather(WeatherNextDayUseCase.RequestParameter parameter) {
+        nextDayUseCase.execute(parameter, new WeatherNextDayUseCase.UseCaseCallback() {
+            @Override
+            public void onSuccess(OpenWeatherNextDaysJSon entity) {
+                Log.e("TEST_TA", "NEXTDAYS WEATHER ==> " + new Gson().toJson(entity));
+
+                nextDaysEntity = entity;
+
+                for (int i = 0;i < 7;i++) {
+                    String tempMax = format.format(entity.list.get(i+1).temp.max-273.15) + "°C";
+                    String tempMin = format.format(entity.list.get(i+1).temp.min-273.15) + "°C";
+                    String icon = entity.list.get(i+1).weather.get(0).icon;
+
+                    NextDaysItem item = new NextDaysItem();
+                    item.date = nextDates[i];
+                    item.dayOfWeek = dayOfWeek[i];
+                    item.maxMinTemp = tempMax + "/" + tempMin;
+                    item.imageIconUrl = getResources().getString(R.string.base_icon_url) + icon + ".png";
+
+                    itemList.add(item);
+                }
+
+                adapter.addAll(itemList);
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                // TODO onError
+            }
+        });
     }
 
     private void showDailyWeatherDialog(OpenWeatherNextDaysJSon nextDaysJSon, String date, int i) {

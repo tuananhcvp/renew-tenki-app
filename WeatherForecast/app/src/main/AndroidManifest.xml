@@ -39,8 +39,10 @@
             android:theme="@style/AppTheme.NoActionBar"/>
 
         <activity android:name=".ForecastDetailActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:screenOrientation="portrait" />
+
+        <activity android:name=".SelectedLocationWeatherActivity"
+            android:screenOrientation="portrait" />
 
         <service android:name=".utils.LocationService" />
     </application>
