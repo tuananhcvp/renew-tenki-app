@@ -19,14 +19,23 @@
         android:layout_marginBottom="12dp"
         android:src="@drawable/snow_occasional_icon" />
 
-    <com.example.tuananh.weatherforecast.view.CustomTextView
+    <!--<com.example.tuananh.weatherforecast.utils.view.CustomTextView-->
+        <!--android:id="@+id/txtWeatherApp"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:textColor="#ffffff"-->
+        <!--android:text="@string/app_name"-->
+        <!--android:textStyle="bold"-->
+        <!--android:textSize="17sp"-->
+        <!--app:font="Pacifico.ttf" />-->
+
+    <TextView
         android:id="@+id/txtWeatherApp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="#ffffff"
         android:text="@string/app_name"
         android:textStyle="bold"
-        android:textSize="17sp"
-        app:font="Pacifico.ttf" />
+        android:textSize="17sp" />
 
 </LinearLayout>

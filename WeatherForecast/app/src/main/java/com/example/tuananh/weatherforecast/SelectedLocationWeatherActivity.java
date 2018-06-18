@@ -10,6 +10,7 @@ import com.example.tuananh.weatherforecast.databinding.FragmentCurrentLocationBi
 import com.example.tuananh.weatherforecast.model.current.OpenWeatherJSon;
 import com.example.tuananh.weatherforecast.utils.Utils;
 import com.example.tuananh.weatherforecast.utils.application.BaseActivity;
+import com.example.tuananh.weatherforecast.utils.usecase.BaseWeatherUseCase;
 import com.example.tuananh.weatherforecast.utils.usecase.WeatherCurrentUseCase;
 import com.example.tuananh.weatherforecast.viewmodel.CurrentForecastViewModel;
 
@@ -91,7 +92,7 @@ public class SelectedLocationWeatherActivity extends BaseActivity {
         parameter.appId = appId;
         parameter.cityName = city;
 
-        useCase.execute(parameter, new WeatherCurrentUseCase.UseCaseCallback() {
+        useCase.execute(parameter, new BaseWeatherUseCase.UseCaseCallback<OpenWeatherJSon>() {
             @Override
             public void onSuccess(OpenWeatherJSon entity) {
                 viewModel.setModel(entity);

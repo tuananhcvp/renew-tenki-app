@@ -1,4 +1,4 @@
-package com.example.tuananh.weatherforecast.view;
+package com.example.tuananh.weatherforecast.utils.view;
 
 import android.databinding.BindingAdapter;
 import android.widget.ImageView;

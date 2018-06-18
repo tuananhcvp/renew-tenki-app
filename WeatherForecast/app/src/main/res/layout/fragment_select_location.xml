@@ -13,15 +13,23 @@
             android:orientation="vertical"
             android:padding="5dp"
             android:background="#40000000">
-            <com.example.tuananh.weatherforecast.view.CustomTextView
+            <!--<com.example.tuananh.weatherforecast.utils.view.CustomTextView-->
+                <!--android:id="@+id/txAddr1"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:textColor="#CAE1FF"-->
+                <!--android:text="@string/txt_enter_address"-->
+                <!--android:layout_marginTop="10dp"-->
+                <!--android:textSize="22sp"-->
+                <!--/>-->
+            <TextView
                 android:id="@+id/txAddr1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="#CAE1FF"
                 android:text="@string/txt_enter_address"
                 android:layout_marginTop="10dp"
-                android:textSize="22sp"
-                />
+                android:textSize="22sp" />
             <AutoCompleteTextView
                 android:layout_marginTop="10dp"
                 android:id="@+id/autoComplexTextView"
@@ -45,16 +53,23 @@
                 style="@style/button"
                 />
 
-            <com.example.tuananh.weatherforecast.view.CustomTextView
+            <!--<com.example.tuananh.weatherforecast.utils.view.CustomTextView-->
+                <!--android:id="@+id/txAddr2"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:textColor="#CAE1FF"-->
+                <!--android:text="@string/txt_select_exist_city"-->
+                <!--android:layout_marginTop="20dp"-->
+                <!--android:textSize="22sp"-->
+                <!--/>-->
+            <TextView
                 android:id="@+id/txAddr2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="#CAE1FF"
                 android:text="@string/txt_select_exist_city"
                 android:layout_marginTop="20dp"
-                android:textSize="22sp"
-                />
-
+                android:textSize="22sp" />
             <ListView
                 android:layout_marginTop="10dp"
                 android:id="@+id/lvJapanCity"

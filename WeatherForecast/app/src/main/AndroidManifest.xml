@@ -22,7 +22,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <activity
             android:name=".SplashScreenActivity"
             android:screenOrientation="portrait"
@@ -33,18 +32,58 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".MainActivity"
+        <activity
+            android:name=".MainActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar"/>
-
-        <activity android:name=".ForecastDetailActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ForecastDetailActivity"
             android:screenOrientation="portrait" />
-
-        <activity android:name=".SelectedLocationWeatherActivity"
+        <activity
+            android:name=".SelectedLocationWeatherActivity"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".AlarmActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".AlertAlarmNoteActivity"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="com.example.tuananh.weatherforecast.alertalarmnoteActivity" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 
         <service android:name=".utils.LocationService" />
+
+        <!--
+             The API key for Google Maps-based APIs is defined as a string resource.
+             (See the file "res/values/google_maps_api.xml").
+             Note that the API key is linked to the encryption key used to sign the APK.
+             You need a different API key for each encryption key, including the release key that is used to
+             sign the APK for publishing.
+             You can define the keys for the debug and release targets in src/debug/ and src/release/. 
+        -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_key" />
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
+        <activity
+            android:name=".WeatherMapsActivity"
+            android:label="@string/title_activity_weather_maps"
+            android:screenOrientation="portrait" />
+
+        <service
+            android:name=".utils.MyNotifyService"
+            android:enabled="true" />
+
+        <receiver android:name=".utils.MyNotifyReceiver" />
+
     </application>
 
 </manifest>

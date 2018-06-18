@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#eee685">
+
+        <RelativeLayout
+            android:id="@+id/relativeLayout1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#eee685"
+            android:gravity="top">
+
+            <TextView
+                android:id="@+id/noteTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="5dp"
+                android:textSize="17sp" />
+        </RelativeLayout>
+
+        <com.example.tuananh.weatherforecast.utils.view.LinedEditText
+            android:id="@+id/content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/relativeLayout1"
+            android:capitalize="sentences"
+            android:fadingEdge="vertical"
+            android:gravity="top"
+            android:inputType="textMultiLine"
+            android:padding="5dp"
+            android:scrollbars="vertical"
+            android:textSize="18sp" />
+
+        <Button
+            android:id="@+id/save"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:text="@string/txt_save"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/cancel"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_toRightOf="@+id/save"
+            android:text="@string/txt_clear"
+            android:textAllCaps="false" />
+    </RelativeLayout>
+
+
+</layout>

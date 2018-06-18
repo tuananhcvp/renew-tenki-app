@@ -1,14 +1,10 @@
-package com.example.tuananh.weatherforecast.view;
+package com.example.tuananh.weatherforecast.utils.view;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.res.TypedArray;
-import android.graphics.Typeface;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.widget.TextView;
-
-import com.example.tuananh.weatherforecast.R;
 
 /**
  * Created by anh on 2018/04/16.
@@ -38,18 +34,18 @@ public class CustomTextView extends TextView {
 
     private void init(AttributeSet attrs) {
         if (attrs != null) {
-            TypedArray arr = getContext().obtainStyledAttributes(attrs, R.styleable.CustomTextView);
-            String fontName = arr.getString(R.styleable.CustomTextView_font);
-
-            try {
-                if (fontName != null) {
-                    Typeface myTypeface = Typeface.createFromAsset(getContext().getAssets(), "fonts/"+fontName);
-                    setTypeface(myTypeface);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            arr.recycle();
+//            TypedArray arr = getContext().obtainStyledAttributes(attrs, R.styleable.CustomTextView);
+//            String fontName = arr.getString(R.styleable.CustomTextView_font);
+//
+//            try {
+//                if (fontName != null) {
+//                    Typeface myTypeface = Typeface.createFromAsset(getContext().getAssets(), "fonts/"+fontName);
+//                    setTypeface(myTypeface);
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//            arr.recycle();
         }
     }
 }

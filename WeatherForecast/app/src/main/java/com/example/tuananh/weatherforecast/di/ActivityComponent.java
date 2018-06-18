@@ -4,6 +4,7 @@ import com.example.tuananh.weatherforecast.ForecastDetailActivity;
 import com.example.tuananh.weatherforecast.MainActivity;
 import com.example.tuananh.weatherforecast.CurrentLocationFragment;
 import com.example.tuananh.weatherforecast.SelectedLocationWeatherActivity;
+import com.example.tuananh.weatherforecast.WeatherMapsActivity;
 
 import dagger.Subcomponent;
 
@@ -19,6 +20,8 @@ public interface ActivityComponent {
     void inject(ForecastDetailActivity activity);
 
     void inject(SelectedLocationWeatherActivity activity);
+
+    void inject(WeatherMapsActivity activity);
 
     void inject(CurrentLocationFragment fragment);
 }

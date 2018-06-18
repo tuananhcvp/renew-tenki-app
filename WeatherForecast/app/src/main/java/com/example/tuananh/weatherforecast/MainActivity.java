@@ -3,7 +3,6 @@ package com.example.tuananh.weatherforecast;
 import android.annotation.TargetApi;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Build;
@@ -27,20 +26,12 @@ import com.example.tuananh.weatherforecast.utils.application.BaseActivity;
 import com.example.tuananh.weatherforecast.utils.LocationService;
 import com.example.tuananh.weatherforecast.utils.SharedPreference;
 import com.example.tuananh.weatherforecast.utils.Utils;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResult;
-import com.google.android.gms.location.LocationSettingsStates;
-import com.google.android.gms.location.LocationSettingsStatusCodes;
 
 public class MainActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    public static final int REQUEST_CHECK_SETTINGS = 0x1;
+    public static final int NOTIFY_REQUEST_CODE = 1;
+
     private boolean hasGPS;
     private NavigationView navigationView;
     private ProgressDialog dialog;
@@ -106,7 +97,6 @@ public class MainActivity extends BaseActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_currentLocation) {
-            Log.d("Location","==> Lat:" + SplashScreenActivity.latitude + " -- Lon:" + SplashScreenActivity.longitude);
             navigationView.getMenu().getItem(0).setChecked(true);
             navigationView.getMenu().getItem(5).getSubMenu().getItem(0).setChecked(false);
 
@@ -119,20 +109,20 @@ public class MainActivity extends BaseActivity
             callFragment(SelectLocationFragment.newInstance());
 
         } else if (id == R.id.nav_googleMap) {
-//            Intent mapIntent = new Intent(MainActivity.this, WeatherMapsActivity.class);
-//            startActivity(mapIntent);
+            Intent mapIntent = new Intent(MainActivity.this, WeatherMapsActivity.class);
+            startActivity(mapIntent);
 
         } else if (id == R.id.nav_note) {
             navigationView.getMenu().getItem(3).setChecked(true);
             navigationView.getMenu().getItem(5).getSubMenu().getItem(0).setChecked(false);
 
-//            callFragment(NoteFragment.newInstance());
+            callFragment(NoteFragment.newInstance());
 
         } else if (id == R.id.nav_setting) {
             navigationView.getMenu().getItem(4).setChecked(true);
             navigationView.getMenu().getItem(5).getSubMenu().getItem(0).setChecked(false);
 
-//            callFragment(SettingFragment.newInstance());
+            callFragment(SettingFragment.newInstance());
 
         } else if (id == R.id.nav_about) {
             navigationView.getMenu().getItem(5).getSubMenu().getItem(0).setChecked(true);
@@ -153,13 +143,13 @@ public class MainActivity extends BaseActivity
     public void initView() {
         LocationManager service = (LocationManager) getSystemService(LOCATION_SERVICE);
         hasGPS = service.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        if (!hasGPS && SharedPreference.getInstance(this).getBoolean("isPermision",false)) {
+        if (!hasGPS && SharedPreference.getInstance(this).getBoolean("isPermision", false)) {
             if (LocationService.mGoogleApiClient != null) {
                 if (!LocationService.mGoogleApiClient.isConnecting() && !LocationService.mGoogleApiClient.isConnected()) {
                     LocationService.mGoogleApiClient.connect();
                 }
             }
-            settingsRequest();
+            Utils.settingRequest(this);
         } else {
             callFragment(CurrentLocationFragment.newInstance());
         }
@@ -172,10 +162,10 @@ public class MainActivity extends BaseActivity
         switch (requestCode) {
             case 1:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    initService();
-                    SharedPreference.getInstance(this).putBoolean("isPermision",true);
+                    Utils.initService(this);
+                    SharedPreference.getInstance(this).putBoolean("isPermision", true);
                 } else {
-                    SharedPreference.getInstance(this).putBoolean("isPermision",false);
+                    SharedPreference.getInstance(this).putBoolean("isPermision", false);
                 }
         }
     }
@@ -183,31 +173,22 @@ public class MainActivity extends BaseActivity
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CHECK_SETTINGS) {
-            SharedPreference.getInstance(this).putBoolean("isPermisionLocation",true);
+        if (requestCode == Utils.REQUEST_CHECK_SETTINGS) {
+            SharedPreference.getInstance(this).putBoolean("isPermisionLocation", true);
             if (resultCode == RESULT_OK) {
                 Utils.initProgressDialog(MainActivity.this, dialog);
                 dialog.show();
                 if (LocationService.mGoogleApiClient.isConnecting() || LocationService.mGoogleApiClient.isConnected()) {
-                    Log.e("mGoogleApiClient","==> Disconnect");
                     LocationService.mGoogleApiClient.disconnect();
                 }
                 final Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        initService();
-                    }
-                }, 3000);  //Do something after 3000ms
-
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
+                handler.postDelayed(() -> {
+                    Utils.initService(MainActivity.this);
+                    handler.postDelayed(() -> {
                         dialog.dismiss();
                         callFragment(CurrentLocationFragment.newInstance());
-                    }
-                }, 4500);
-
+                    }, 1000);
+                }, 3000);  //Init service after 3000ms
             }
         }
     }
@@ -220,13 +201,13 @@ public class MainActivity extends BaseActivity
             if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_DENIED) {
                 requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
             } else {
-                initService();
+                Utils.initService(this);
             }
             // Do something for lollipop and above versions
         } else {
-            SharedPreference.getInstance(this).putBoolean("isPermision",true);
+            SharedPreference.getInstance(this).putBoolean("isPermision", true);
             // do something for phones running an SDK before lollipop
-            initService();
+            Utils.initService(this);
         }
 
 //        receiver = new BroadcastReceiver() {
@@ -238,54 +219,6 @@ public class MainActivity extends BaseActivity
 //            }
 //        };
     }
-
-    private void initService() {
-        Intent intent = new Intent(MainActivity.this, LocationService.class);
-        startService(intent);
-    }
-
-    private void settingsRequest() {
-        LocationRequest locationRequest = LocationRequest.create();
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        locationRequest.setInterval(30 * 1000);
-        locationRequest.setFastestInterval(1000);
-        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
-                .addLocationRequest(locationRequest);
-        builder.setAlwaysShow(true); //this is the key ingredient
-
-        PendingResult<LocationSettingsResult> result =
-                LocationServices.SettingsApi.checkLocationSettings(LocationService.mGoogleApiClient, builder.build());
-        result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
-            @Override
-            public void onResult(LocationSettingsResult result) {
-                final Status status = result.getStatus();
-                final LocationSettingsStates state = result.getLocationSettingsStates();
-                switch (status.getStatusCode()) {
-                    case LocationSettingsStatusCodes.SUCCESS:
-                        // All location settings are satisfied. The client can initialize location
-                        // requests here.
-                        break;
-                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                        // Location settings are not satisfied. But could be fixed by showing the user
-                        // a dialog.
-                        try {
-                            // Show the dialog by calling startResolutionForResult(),
-                            // and check the result in onActivityResult().
-                            status.startResolutionForResult(MainActivity.this, REQUEST_CHECK_SETTINGS);
-
-                        } catch (IntentSender.SendIntentException e) {
-                            // Ignore the error.
-                        }
-                        break;
-                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                        // Location settings are not satisfied. However, we have no way to fix the
-                        // settings so we won't show the dialog.
-                        break;
-                }
-            }
-        });
-    }
-
 
     private void callFragment(Fragment fragment) {
         FragmentManager manager = getSupportFragmentManager();

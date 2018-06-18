@@ -1,4 +1,4 @@
-package com.example.tuananh.weatherforecast.view;
+package com.example.tuananh.weatherforecast.utils.view;
 
 import android.content.Context;
 import android.graphics.Canvas;

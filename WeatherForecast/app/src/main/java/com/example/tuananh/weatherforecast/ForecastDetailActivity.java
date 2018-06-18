@@ -24,6 +24,7 @@ import com.example.tuananh.weatherforecast.model.nextday.OpenWeatherNextDaysJSon
 import com.example.tuananh.weatherforecast.utils.SharedPreference;
 import com.example.tuananh.weatherforecast.utils.Utils;
 import com.example.tuananh.weatherforecast.utils.application.BaseActivity;
+import com.example.tuananh.weatherforecast.utils.usecase.BaseWeatherUseCase;
 import com.example.tuananh.weatherforecast.utils.usecase.WeatherDailyUseCase;
 import com.example.tuananh.weatherforecast.utils.usecase.WeatherNextDayUseCase;
 import com.example.tuananh.weatherforecast.viewmodel.DetailForecastViewModel;
@@ -126,38 +127,38 @@ public class ForecastDetailActivity extends BaseActivity {
 
         switch (type) {
             case TYPE_CURRENT_ADDRESS:
-                WeatherDailyUseCase.RequestParameter parameter = new WeatherDailyUseCase.RequestParameter();
-                parameter.type = WeatherDailyUseCase.RequestParameter.TYPE_LOCATION;
-                parameter.appId = appId;
-                parameter.lat = SplashScreenActivity.latitude;
-                parameter.lon = SplashScreenActivity.longitude;
+                WeatherDailyUseCase.RequestParameter dailyParameter = new WeatherDailyUseCase.RequestParameter();
+                dailyParameter.type = WeatherDailyUseCase.RequestParameter.TYPE_LOCATION;
+                dailyParameter.appId = appId;
+                dailyParameter.lat = SplashScreenActivity.latitude;
+                dailyParameter.lon = SplashScreenActivity.longitude;
 
-                loadDailyWeather(parameter);
+                loadDailyWeather(dailyParameter);
 
-                WeatherNextDayUseCase.RequestParameter requestParameter = new WeatherNextDayUseCase.RequestParameter();
-                requestParameter.type = WeatherDailyUseCase.RequestParameter.TYPE_LOCATION;
-                requestParameter.appId = appId;
-                requestParameter.lat = SplashScreenActivity.latitude;
-                requestParameter.lon = SplashScreenActivity.longitude;
+                WeatherNextDayUseCase.RequestParameter nextDaysParameter = new WeatherNextDayUseCase.RequestParameter();
+                nextDaysParameter.type = WeatherDailyUseCase.RequestParameter.TYPE_LOCATION;
+                nextDaysParameter.appId = appId;
+                nextDaysParameter.lat = SplashScreenActivity.latitude;
+                nextDaysParameter.lon = SplashScreenActivity.longitude;
 
-                loadNextDaysWeather(requestParameter);
+                loadNextDaysWeather(nextDaysParameter);
 
                 break;
 
             case TYPE_SELECTED_ADDRESS:
-                WeatherDailyUseCase.RequestParameter parameter2 = new WeatherDailyUseCase.RequestParameter();
-                parameter2.type = WeatherDailyUseCase.RequestParameter.TYPE_NAME;
-                parameter2.appId = appId;
-                parameter2.cityName = selectedAddress;
+                WeatherDailyUseCase.RequestParameter dailyParameter2 = new WeatherDailyUseCase.RequestParameter();
+                dailyParameter2.type = WeatherDailyUseCase.RequestParameter.TYPE_NAME;
+                dailyParameter2.appId = appId;
+                dailyParameter2.cityName = selectedAddress;
 
-                loadDailyWeather(parameter2);
+                loadDailyWeather(dailyParameter2);
 
-                WeatherNextDayUseCase.RequestParameter requestParameter2 = new WeatherNextDayUseCase.RequestParameter();
-                requestParameter2.type = WeatherDailyUseCase.RequestParameter.TYPE_NAME;
-                requestParameter2.appId = appId;
-                requestParameter2.cityName = selectedAddress;
+                WeatherNextDayUseCase.RequestParameter nextDaysParameter2 = new WeatherNextDayUseCase.RequestParameter();
+                nextDaysParameter2.type = WeatherDailyUseCase.RequestParameter.TYPE_NAME;
+                nextDaysParameter2.appId = appId;
+                nextDaysParameter2.cityName = selectedAddress;
 
-                loadNextDaysWeather(requestParameter2);
+                loadNextDaysWeather(nextDaysParameter2);
 
                 break;
 
@@ -196,7 +197,7 @@ public class ForecastDetailActivity extends BaseActivity {
     }
 
     private void loadDailyWeather(WeatherDailyUseCase.RequestParameter parameter) {
-        dailyUseCase.execute(parameter, new WeatherDailyUseCase.UseCaseCallback() {
+        dailyUseCase.execute(parameter, new BaseWeatherUseCase.UseCaseCallback<OpenWeatherDailyJSon>() {
             @Override
             public void onSuccess(OpenWeatherDailyJSon entity) {
                 Log.e("TEST_TA", "DAILY WEATHER ==> " + new Gson().toJson(entity));
@@ -219,7 +220,7 @@ public class ForecastDetailActivity extends BaseActivity {
     }
 
     private void loadNextDaysWeather(WeatherNextDayUseCase.RequestParameter parameter) {
-        nextDayUseCase.execute(parameter, new WeatherNextDayUseCase.UseCaseCallback() {
+        nextDayUseCase.execute(parameter, new BaseWeatherUseCase.UseCaseCallback<OpenWeatherNextDaysJSon>() {
             @Override
             public void onSuccess(OpenWeatherNextDaysJSon entity) {
                 Log.e("TEST_TA", "NEXTDAYS WEATHER ==> " + new Gson().toJson(entity));

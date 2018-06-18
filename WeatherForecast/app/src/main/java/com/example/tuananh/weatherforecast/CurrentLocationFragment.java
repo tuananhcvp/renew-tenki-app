@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +13,7 @@ import com.example.tuananh.weatherforecast.model.current.OpenWeatherJSon;
 import com.example.tuananh.weatherforecast.utils.LocationService;
 import com.example.tuananh.weatherforecast.utils.Utils;
 import com.example.tuananh.weatherforecast.utils.application.BaseActivity;
+import com.example.tuananh.weatherforecast.utils.usecase.BaseWeatherUseCase;
 import com.example.tuananh.weatherforecast.utils.usecase.WeatherCurrentUseCase;
 import com.example.tuananh.weatherforecast.viewmodel.CurrentForecastViewModel;
 
@@ -53,10 +53,9 @@ public class CurrentLocationFragment extends Fragment {
 
         if (SplashScreenActivity.latitude == 0 && SplashScreenActivity.longitude == 0) {
             if (LocationService.mGoogleApiClient.isConnecting() || LocationService.mGoogleApiClient.isConnected()) {
-                Log.e("mGoogleApiClient","==> Disconnect");
                 LocationService.mGoogleApiClient.disconnect();
             }
-            initService();
+            Utils.initService(getContext());
         }
     }
 
@@ -101,8 +100,6 @@ public class CurrentLocationFragment extends Fragment {
                 } else {
                     if (!currentAddress.equalsIgnoreCase("")) {
                         Intent detailIntent = new Intent(getActivity(), ForecastDetailActivity.class);
-//                        detailIntent.putExtra("CurrentLatitude", SplashScreenActivity.latitude);
-//                        detailIntent.putExtra("CurrentLongitude", SplashScreenActivity.longitude);
                         detailIntent.putExtra("CurrentAddressName", currentAddress);
                         startActivity(detailIntent);
                     } else {
@@ -122,7 +119,7 @@ public class CurrentLocationFragment extends Fragment {
         parameter.lon = lon;
         parameter.appId = appId;
 
-        useCase.execute(parameter, new WeatherCurrentUseCase.UseCaseCallback() {
+        useCase.execute(parameter, new BaseWeatherUseCase.UseCaseCallback<OpenWeatherJSon>() {
             @Override
             public void onSuccess(OpenWeatherJSon entity) {
                 viewModel.setModel(entity);
@@ -138,10 +135,10 @@ public class CurrentLocationFragment extends Fragment {
     }
 
 
-    public void initService() {
-        Intent intent = new Intent(getActivity(), LocationService.class);
-        getActivity().startService(intent);
-    }
+//    private void initService() {
+//        Intent intent = new Intent(getActivity(), LocationService.class);
+//        getActivity().startService(intent);
+//    }
 
     private void showToastCheckInternet() {
         Utils.showToastNotify(getContext(), getString(R.string.check_internet));
