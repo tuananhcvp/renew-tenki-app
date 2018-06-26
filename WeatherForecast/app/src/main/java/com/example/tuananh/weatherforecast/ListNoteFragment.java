@@ -28,6 +28,7 @@ public class ListNoteFragment extends Fragment {
 
     private static final int MENU_ITEM_DELETE = 111;
     private static final int MENU_ITEM_SETALARM = 222;
+    private static final int MENU_ITEM_SHARE = 333;
 
     /**
      * ListNoteFragment initialize
@@ -89,6 +90,7 @@ public class ListNoteFragment extends Fragment {
         menu.setHeaderTitle(getResources().getString(R.string.select_action));
         menu.add(0, MENU_ITEM_SETALARM, 0, getResources().getString(R.string.set_alarm));
         menu.add(0, MENU_ITEM_DELETE, 1, getResources().getString(R.string.delete_note));
+        menu.add(0, MENU_ITEM_SHARE, 2, getResources().getString(R.string.share_note));
     }
 
     @Override
@@ -108,6 +110,14 @@ public class ListNoteFragment extends Fragment {
                     .setPositiveButton(getResources().getString(R.string.txt_yes), (dialogInterface, i) -> deleteNote(selectedNote))
                     .setNegativeButton(getResources().getString(R.string.txt_no), null)
                     .show();
+        } else if (item.getItemId() == MENU_ITEM_SHARE) {
+            String time = selectedNote.getModifyTime().isEmpty() ? selectedNote.getCreateTime() : selectedNote.getModifyTime();
+
+            Intent i = new Intent(android.content.Intent.ACTION_SEND);
+            i.setType("text/plain");
+            i.putExtra(android.content.Intent.EXTRA_SUBJECT,"Note");
+            i.putExtra(android.content.Intent.EXTRA_TEXT, time + "\n" + selectedNote.getContent());
+            startActivity(Intent.createChooser(i,"Share via"));
         }
 
         return true;
@@ -126,6 +136,9 @@ public class ListNoteFragment extends Fragment {
 
     }
 
+    /**
+     * Delete note
+     */
     private void deleteNote(Note note) {
         MyDatabaseHelper db = new MyDatabaseHelper(getContext());
         db.deleteNote(note);
@@ -133,6 +146,9 @@ public class ListNoteFragment extends Fragment {
         adapter.notifyDataSetChanged();
     }
 
+    /**
+     * Update note list
+     */
     private void updateListNote() {
         noteList.clear();
         MyDatabaseHelper db = new MyDatabaseHelper(getContext());

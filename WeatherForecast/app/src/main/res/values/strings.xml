@@ -60,6 +60,7 @@
     <string name="check_delete">Are you sure want to delete?</string>
     <string name="select_action">Select the action</string>
     <string name="delete_note">Delete note</string>
+    <string name="share_note">Share note</string>
     <string name="alarm_success">Alarm is set successfully!</string>
     <string name="not_connect">Internet is not connected!</string>
     <string name="input_address">Please input an address!</string>

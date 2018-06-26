@@ -11,17 +11,23 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.tuananh.weatherforecast.MainActivity;
 import com.example.tuananh.weatherforecast.R;
+import com.example.tuananh.weatherforecast.model.nextday.ListItem;
+import com.example.tuananh.weatherforecast.model.nextday.OpenWeatherNextDaysJSon;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
@@ -32,6 +38,8 @@ import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStates;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Locale;
 
 import es.dmoral.toasty.Toasty;
@@ -178,5 +186,67 @@ public class Utils {
                 }
             }
         });
+    }
+
+    /**
+     *
+     */
+    public static void showDailyWeatherDialog(Activity context, OpenWeatherNextDaysJSon nextDaysJSon, String date, int i) {
+        View v = context.getLayoutInflater().inflate(R.layout.next_days_weather_info, null);
+        NumberFormat format = new DecimalFormat("#0.0");
+
+        TextView tvDate = v.findViewById(R.id.tvDate);
+        ImageView imgIconState = v.findViewById(R.id.imgIconState);
+        TextView tvTemp = v.findViewById(R.id.tvTemp);
+        TextView tvState = v.findViewById(R.id.tvState);
+        TextView tvMaxMinTemp = v.findViewById(R.id.tvMaxMinTemp);
+        TextView tvMorTemp = v.findViewById(R.id.tvMorTemp);
+        TextView tvEveTemp = v.findViewById(R.id.tvEveTemp);
+        TextView tvNightTemp = v.findViewById(R.id.tvNightTemp);
+        TextView tvWind = v.findViewById(R.id.tvWind);
+        TextView tvHum = v.findViewById(R.id.tvHum);
+        TextView tvPress = v.findViewById(R.id.tvPress);
+
+        ListItem item = nextDaysJSon.list.get(i + 1);
+        String tempDay = format.format(item.temp.day - 273.15) + "°C";
+        String state = item.weather.get(0).description;
+        String tempMax = format.format(item.temp.max - 273.15) + "°C";
+        String tempMin = format.format(item.temp.min - 273.15) + "°C";
+        String tempMorn = format.format(item.temp.morning - 273.15) + "°C";
+        String tempEve = format.format(item.temp.evening - 273.15) + "°C";
+        String tempNight = format.format(item.temp.night - 273.15) + "°C";
+        String wind = item.speed + "m/s";
+        String press = item.pressure + "hpa";
+        String hum = item.humidity + "%";
+        String urlIcon = item.weather.get(0).icon;
+
+        tvDate.setText(date);
+        Glide.with(context).load(context.getString(R.string.base_icon_url) + urlIcon + ".png").into(imgIconState);
+        tvTemp.setText(tempDay);
+        tvState.setText(state);
+        tvMaxMinTemp.setText(tempMax + "/" + tempMin);
+        tvMorTemp.setText(context.getResources().getString(R.string.txt_morning) + ": " + tempMorn);
+        tvEveTemp.setText(context.getResources().getString(R.string.txt_evening) + ": " + tempEve);
+        tvNightTemp.setText(context.getResources().getString(R.string.txt_night) + ": " + tempNight);
+        tvWind.setText(context.getResources().getString(R.string.txt_wind) + ": " + wind);
+        tvHum.setText(context.getResources().getString(R.string.txt_humidity) + ": " + hum);
+        tvPress.setText(context.getResources().getString(R.string.txt_pressure) + ": " + press);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("");
+        builder.setView(v);
+        builder.setCancelable(true);
+
+        final AlertDialog dialog = builder.create();
+        v.setOnClickListener(v1 -> dialog.dismiss());
+
+//        DisplayMetrics metrics = getResources().getDisplayMetrics();
+//        float dp = 320f;
+//        float fpixels = metrics.density * dp;
+//        int pixels = (int) (fpixels + 0.5f);
+
+        dialog.show();
+//        dialog.getWindow().setLayout(pixels, LinearLayout.LayoutParams.WRAP_CONTENT);
+        dialog.getWindow().setLayout(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
     }
 }

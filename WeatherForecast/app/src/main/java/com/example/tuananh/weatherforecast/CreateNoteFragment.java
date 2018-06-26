@@ -164,7 +164,9 @@ public class CreateNoteFragment extends Fragment {
         }
     }
 
-    //Get time in current
+    /**
+     * Get time in current
+     */
     private String getCurrentTime() {
         Calendar c = Calendar.getInstance();
         SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy hh:mm a");

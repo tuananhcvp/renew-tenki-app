@@ -1,25 +1,16 @@
 package com.example.tuananh.weatherforecast;
 
 import android.databinding.DataBindingUtil;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.example.tuananh.weatherforecast.adapter.HorizontalListViewDailyAdapter;
 import com.example.tuananh.weatherforecast.adapter.NextDaysWeatherAdapter;
 import com.example.tuananh.weatherforecast.databinding.ActivityForecastDetailBinding;
 import com.example.tuananh.weatherforecast.model.NextDaysItem;
 import com.example.tuananh.weatherforecast.model.daily.OpenWeatherDailyJSon;
-import com.example.tuananh.weatherforecast.model.nextday.ListItem;
 import com.example.tuananh.weatherforecast.model.nextday.OpenWeatherNextDaysJSon;
 import com.example.tuananh.weatherforecast.utils.SharedPreference;
 import com.example.tuananh.weatherforecast.utils.Utils;
@@ -118,10 +109,13 @@ public class ForecastDetailActivity extends BaseActivity {
 
         adapter.setCallback(position -> {
             String date = dayOfWeek[position] + "<" + nextDates[position] + ">";
-            showDailyWeatherDialog(nextDaysEntity, date, position);
+            Utils.showDailyWeatherDialog(this, nextDaysEntity, date, position);
         });
     }
 
+    /**
+     * Load weather information
+     */
     private void loadWeather(int type) {
         String appId = getResources().getString(R.string.appid_weather);
 
@@ -167,35 +161,9 @@ public class ForecastDetailActivity extends BaseActivity {
         }
     }
 
-    // Get 7days of week from now Ex: Tuesday, Wednesday...
-    private void getDayOfWeek() {
-        int posLanguage = SharedPreference.getInstance(this).getInt("Language", 0);
-
-        SimpleDateFormat sdf;
-        if (posLanguage == 1) {
-            sdf = new SimpleDateFormat("EEEE", Locale.JAPAN);
-        } else {
-            sdf = new SimpleDateFormat("EEEE", Locale.ENGLISH);
-        }
-
-        for (int i = 0; i < 7; i++) {
-            Calendar calendar = Calendar.getInstance();
-            calendar.add(Calendar.DATE, i + 1);
-            dayOfWeek[i] = sdf.format(calendar.getTime());
-        }
-    }
-
-    // Get next 7 dates from now Ex: 1-2-2018,2-2-2018...
-    private void getNextDates() {
-        for (int i = 1; i < 8; i++) {
-            Calendar calendar = Calendar.getInstance();
-            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            calendar.add(Calendar.DAY_OF_YEAR, i);
-            Date date = calendar.getTime();
-            nextDates[i - 1] = dateFormat.format(date);
-        }
-    }
-
+    /**
+     * Load daily weather information
+     */
     private void loadDailyWeather(WeatherDailyUseCase.RequestParameter parameter) {
         dailyUseCase.execute(parameter, new BaseWeatherUseCase.UseCaseCallback<OpenWeatherDailyJSon>() {
             @Override
@@ -219,6 +187,9 @@ public class ForecastDetailActivity extends BaseActivity {
         });
     }
 
+    /**
+     * Load next days weather information
+     */
     private void loadNextDaysWeather(WeatherNextDayUseCase.RequestParameter parameter) {
         nextDayUseCase.execute(parameter, new BaseWeatherUseCase.UseCaseCallback<OpenWeatherNextDaysJSon>() {
             @Override
@@ -251,61 +222,36 @@ public class ForecastDetailActivity extends BaseActivity {
         });
     }
 
-    private void showDailyWeatherDialog(OpenWeatherNextDaysJSon nextDaysJSon, String date, int i) {
-        View v = this.getLayoutInflater().inflate(R.layout.next_days_weather_info, null);
+    /**
+     * Get 7days of week from now Ex: Tuesday, Wednesday...
+     */
+    private void getDayOfWeek() {
+        int posLanguage = SharedPreference.getInstance(this).getInt("Language", 0);
 
-        TextView tvDate = v.findViewById(R.id.tvDate);
-        ImageView imgIconState = v.findViewById(R.id.imgIconState);
-        TextView tvTemp = v.findViewById(R.id.tvTemp);
-        TextView tvState = v.findViewById(R.id.tvState);
-        TextView tvMaxMinTemp = v.findViewById(R.id.tvMaxMinTemp);
-        TextView tvMorTemp = v.findViewById(R.id.tvMorTemp);
-        TextView tvEveTemp = v.findViewById(R.id.tvEveTemp);
-        TextView tvNightTemp = v.findViewById(R.id.tvNightTemp);
-        TextView tvWind = v.findViewById(R.id.tvWind);
-        TextView tvHum = v.findViewById(R.id.tvHum);
-        TextView tvPress = v.findViewById(R.id.tvPress);
+        SimpleDateFormat sdf;
+        if (posLanguage == 1) {
+            sdf = new SimpleDateFormat("EEEE", Locale.JAPAN);
+        } else {
+            sdf = new SimpleDateFormat("EEEE", Locale.ENGLISH);
+        }
 
-        ListItem item = nextDaysJSon.list.get(i + 1);
-        String tempDay = format.format(item.temp.day - 273.15) + "°C";
-        String state = item.weather.get(0).description;
-        String tempMax = format.format(item.temp.max - 273.15) + "°C";
-        String tempMin = format.format(item.temp.min - 273.15) + "°C";
-        String tempMorn = format.format(item.temp.morning - 273.15) + "°C";
-        String tempEve = format.format(item.temp.evening - 273.15) + "°C";
-        String tempNight = format.format(item.temp.night - 273.15) + "°C";
-        String wind = item.speed + "m/s";
-        String press = item.pressure + "hpa";
-        String hum = item.humidity + "%";
-        String urlIcon = item.weather.get(0).icon;
+        for (int i = 0; i < 7; i++) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.DATE, i + 1);
+            dayOfWeek[i] = sdf.format(calendar.getTime());
+        }
+    }
 
-        tvDate.setText(date);
-        Glide.with(this).load(getString(R.string.base_icon_url) + urlIcon + ".png").into(imgIconState);
-        tvTemp.setText(tempDay);
-        tvState.setText(state);
-        tvMaxMinTemp.setText(tempMax + "/" + tempMin);
-        tvMorTemp.setText(getResources().getString(R.string.txt_morning) + ": " + tempMorn);
-        tvEveTemp.setText(getResources().getString(R.string.txt_evening) + ": " + tempEve);
-        tvNightTemp.setText(getResources().getString(R.string.txt_night) + ": " + tempNight);
-        tvWind.setText(getResources().getString(R.string.txt_wind) + ": " + wind);
-        tvHum.setText(getResources().getString(R.string.txt_humidity) + ": " + hum);
-        tvPress.setText(getResources().getString(R.string.txt_pressure) + ": " + press);
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("");
-        builder.setView(v);
-        builder.setCancelable(true);
-
-        final AlertDialog dialog = builder.create();
-        v.setOnClickListener(v1 -> dialog.dismiss());
-
-//        DisplayMetrics metrics = getResources().getDisplayMetrics();
-//        float dp = 320f;
-//        float fpixels = metrics.density * dp;
-//        int pixels = (int) (fpixels + 0.5f);
-
-        dialog.show();
-//        dialog.getWindow().setLayout(pixels, LinearLayout.LayoutParams.WRAP_CONTENT);
-        dialog.getWindow().setLayout(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+    /**
+     * Get next 7 dates from now Ex: 1-2-2018,2-2-2018...
+     */
+    private void getNextDates() {
+        for (int i = 1; i < 8; i++) {
+            Calendar calendar = Calendar.getInstance();
+            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            calendar.add(Calendar.DAY_OF_YEAR, i);
+            Date date = calendar.getTime();
+            nextDates[i - 1] = dateFormat.format(date);
+        }
     }
 }

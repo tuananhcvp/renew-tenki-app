@@ -170,6 +170,9 @@ public class WeatherMapsActivity extends BaseActivity implements OnMapReadyCallb
 
     }
 
+    /**
+     * Setting map
+     */
     private void setUpMap() {
         if (mMap == null) {
             return;
@@ -225,6 +228,9 @@ public class WeatherMapsActivity extends BaseActivity implements OnMapReadyCallb
         }
     }
 
+    /**
+     * Set first target is current location on Map
+     */
     private void initCurrentWeather() {
         double lat = SplashScreenActivity.latitude;
         double lon = SplashScreenActivity.longitude;
@@ -238,6 +244,9 @@ public class WeatherMapsActivity extends BaseActivity implements OnMapReadyCallb
         loadCurrentWeatherByLocation(lat, lon);
     }
 
+    /**
+     * Load current weather information by coordinate
+     */
     private void loadCurrentWeatherByLocation(final double lat, final double lon) {
         WeatherCurrentUseCase.RequestParameter parameter = new WeatherCurrentUseCase.RequestParameter();
         parameter.type = WeatherCurrentUseCase.RequestParameter.TYPE_LOCATION;
@@ -257,6 +266,7 @@ public class WeatherMapsActivity extends BaseActivity implements OnMapReadyCallb
                     @Override
                     public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
                         super.onLoadingComplete(imageUri, view, loadedImage);
+                        // Create InfoWindowAdapter object for map
                         GoogleMapWeatherInfoAdapter infoAdapter = new GoogleMapWeatherInfoAdapter(response, WeatherMapsActivity.this, loadedImage);
                         mMap.setInfoWindowAdapter(infoAdapter);
                         MarkerOptions option = new MarkerOptions();

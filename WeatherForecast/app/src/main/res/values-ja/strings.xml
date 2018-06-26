@@ -61,6 +61,7 @@
     <string name="check_delete">削除してもよろしいですか?</string>
     <string name="select_action">アクションを選択する</string>
     <string name="delete_note">メモを削除する</string>
+    <string name="share_note">メモをシェアする</string>
     <string name="alarm_success">アラームが設定された</string>
     <string name="not_connect">インターネット接続がありません!</string>
     <string name="input_address">箇所を入力してください!</string>

@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.databinding.DataBindingUtil;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Handler;
@@ -17,15 +18,15 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.example.tuananh.weatherforecast.databinding.ActivityMainBinding;
 import com.example.tuananh.weatherforecast.utils.application.BaseActivity;
 import com.example.tuananh.weatherforecast.utils.LocationService;
 import com.example.tuananh.weatherforecast.utils.SharedPreference;
 import com.example.tuananh.weatherforecast.utils.Utils;
+import com.example.tuananh.weatherforecast.viewmodel.AboutAppFragment;
 
 public class MainActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -33,26 +34,26 @@ public class MainActivity extends BaseActivity
     public static final int NOTIFY_REQUEST_CODE = 1;
 
     private boolean hasGPS;
-    private NavigationView navigationView;
     private ProgressDialog dialog;
+
+    private ActivityMainBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+
+        setSupportActionBar(binding.appBarMain.toolbar);
         dialog = new ProgressDialog(this);
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
+                this, binding.drawerLayout, binding.appBarMain.toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        binding.drawerLayout.setDrawerListener(toggle);
         toggle.syncState();
 
-        navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-        navigationView.getMenu().getItem(0).setChecked(true);
+        binding.navView.setNavigationItemSelectedListener(this);
+        binding.navView.getMenu().getItem(0).setChecked(true);
 
         initGPS();
         initView();
@@ -97,15 +98,9 @@ public class MainActivity extends BaseActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_currentLocation) {
-            navigationView.getMenu().getItem(0).setChecked(true);
-            navigationView.getMenu().getItem(5).getSubMenu().getItem(0).setChecked(false);
-
             callFragment(CurrentLocationFragment.newInstance());
 
         } else if (id == R.id.nav_selectLocation) {
-            navigationView.getMenu().getItem(1).setChecked(true);
-            navigationView.getMenu().getItem(5).getSubMenu().getItem(0).setChecked(false);
-
             callFragment(SelectLocationFragment.newInstance());
 
         } else if (id == R.id.nav_googleMap) {
@@ -113,47 +108,18 @@ public class MainActivity extends BaseActivity
             startActivity(mapIntent);
 
         } else if (id == R.id.nav_note) {
-            navigationView.getMenu().getItem(3).setChecked(true);
-            navigationView.getMenu().getItem(5).getSubMenu().getItem(0).setChecked(false);
-
             callFragment(NoteFragment.newInstance());
 
         } else if (id == R.id.nav_setting) {
-            navigationView.getMenu().getItem(4).setChecked(true);
-            navigationView.getMenu().getItem(5).getSubMenu().getItem(0).setChecked(false);
-
             callFragment(SettingFragment.newInstance());
 
         } else if (id == R.id.nav_about) {
-            navigationView.getMenu().getItem(5).getSubMenu().getItem(0).setChecked(true);
-            navigationView.getMenu().getItem(0).setChecked(false);
-            navigationView.getMenu().getItem(1).setChecked(false);
-            navigationView.getMenu().getItem(2).setChecked(false);
-            navigationView.getMenu().getItem(3).setChecked(false);
-            navigationView.getMenu().getItem(4).setChecked(false);
-
-//            callFragment(AboutAppFragment.newInstance());
+            callFragment(AboutAppFragment.newInstance());
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
-    }
-
-    public void initView() {
-        LocationManager service = (LocationManager) getSystemService(LOCATION_SERVICE);
-        hasGPS = service.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        if (!hasGPS && SharedPreference.getInstance(this).getBoolean("isPermision", false)) {
-            if (LocationService.mGoogleApiClient != null) {
-                if (!LocationService.mGoogleApiClient.isConnecting() && !LocationService.mGoogleApiClient.isConnected()) {
-                    LocationService.mGoogleApiClient.connect();
-                }
-            }
-            Utils.settingRequest(this);
-        } else {
-            callFragment(CurrentLocationFragment.newInstance());
-        }
-
     }
 
     @Override
@@ -188,12 +154,14 @@ public class MainActivity extends BaseActivity
                         dialog.dismiss();
                         callFragment(CurrentLocationFragment.newInstance());
                     }, 1000);
-                }, 3000);  //Init service after 3000ms
+                }, 3000);  //Init service after 3s
             }
         }
     }
 
-
+    /**
+     * Check GPS Permission
+     */
     @TargetApi(Build.VERSION_CODES.M)
     public void initGPS() {
         int currentapiVersion = android.os.Build.VERSION.SDK_INT;
@@ -203,21 +171,28 @@ public class MainActivity extends BaseActivity
             } else {
                 Utils.initService(this);
             }
-            // Do something for lollipop and above versions
         } else {
             SharedPreference.getInstance(this).putBoolean("isPermision", true);
-            // do something for phones running an SDK before lollipop
             Utils.initService(this);
         }
+    }
 
-//        receiver = new BroadcastReceiver() {
-//            @Override
-//            public void onReceive(Context context, Intent intent) {
-//                Bundle extras = intent.getExtras();
-//                final LatLng temp = new LatLng(extras.getDouble("Latitude"),extras.getDouble("Longitude"));
-//                Log.d("inReceiver","Lat:" + temp.latitude + "--Lon:" + temp.longitude);
-//            }
-//        };
+    public void initView() {
+        LocationManager service = (LocationManager) getSystemService(LOCATION_SERVICE);
+        hasGPS = service.isProviderEnabled(LocationManager.GPS_PROVIDER);
+
+        // Check GPS state
+        if (!hasGPS && SharedPreference.getInstance(this).getBoolean("isPermision", false)) {
+            if (LocationService.mGoogleApiClient != null) {
+                if (!LocationService.mGoogleApiClient.isConnecting() && !LocationService.mGoogleApiClient.isConnected()) {
+                    LocationService.mGoogleApiClient.connect();
+                }
+            }
+            Utils.settingRequest(this);
+        } else {
+            callFragment(CurrentLocationFragment.newInstance());
+        }
+
     }
 
     private void callFragment(Fragment fragment) {
@@ -231,16 +206,13 @@ public class MainActivity extends BaseActivity
      * Refresh navigation view when language change
      */
     public void refreshNavigationView() {
-        this.setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        setSupportActionBar(binding.appBarMain.toolbar);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
+                this, binding.drawerLayout, binding.appBarMain.toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        binding.drawerLayout.setDrawerListener(toggle);
         toggle.syncState();
-        navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+        binding.navView.setNavigationItemSelectedListener(this);
     }
 
     public void setActionBarName(String title) {

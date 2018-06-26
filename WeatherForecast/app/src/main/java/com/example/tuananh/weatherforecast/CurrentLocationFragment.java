@@ -40,10 +40,8 @@ public class CurrentLocationFragment extends Fragment {
      */
     public static CurrentLocationFragment newInstance() {
         CurrentLocationFragment fragment = new CurrentLocationFragment();
-
         Bundle args = new Bundle();
         fragment.setArguments(args);
-
         return fragment;
     }
 
@@ -51,6 +49,7 @@ public class CurrentLocationFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        // If coordinator have no value, initialize location service again
         if (SplashScreenActivity.latitude == 0 && SplashScreenActivity.longitude == 0) {
             if (LocationService.mGoogleApiClient.isConnecting() || LocationService.mGoogleApiClient.isConnected()) {
                 LocationService.mGoogleApiClient.disconnect();
@@ -73,45 +72,41 @@ public class CurrentLocationFragment extends Fragment {
         binding.setCurrentModel(viewModel);
 
         appId = getActivity().getResources().getString(R.string.appid_weather);
+
+        init();
+
         return binding.getRoot();
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
+    private void init() {
 
+        // Load weather info
         if (SplashScreenActivity.latitude == 0 && SplashScreenActivity.longitude == 0) {
             final Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    loadWeather(SplashScreenActivity.latitude, SplashScreenActivity.longitude);
-                }
-            }, 1000);
+            handler.postDelayed(() -> loadWeather(SplashScreenActivity.latitude, SplashScreenActivity.longitude), 1000);
         } else {
             loadWeather(SplashScreenActivity.latitude, SplashScreenActivity.longitude);
         }
 
-        binding.btnDetail.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!Utils.isNetworkConnected(getActivity())) {
-                    showToastCheckInternet();
+        binding.btnDetail.setOnClickListener(v -> {
+            if (!Utils.isNetworkConnected(getActivity())) {
+                Utils.showToastNotify(getContext(), getString(R.string.check_internet));
+            } else {
+                if (!currentAddress.equalsIgnoreCase("")) {
+                    Intent detailIntent = new Intent(getActivity(), ForecastDetailActivity.class);
+                    detailIntent.putExtra("CurrentAddressName", currentAddress);
+                    startActivity(detailIntent);
                 } else {
-                    if (!currentAddress.equalsIgnoreCase("")) {
-                        Intent detailIntent = new Intent(getActivity(), ForecastDetailActivity.class);
-                        detailIntent.putExtra("CurrentAddressName", currentAddress);
-                        startActivity(detailIntent);
-                    } else {
-                        Utils.showToastNotify(getContext(), getString(R.string.check_data_not_found));
-                    }
-
+                    Utils.showToastNotify(getContext(), getString(R.string.check_data_not_found));
                 }
+
             }
         });
-
     }
 
+    /**
+     * Load current weather information by coordinate
+     */
     private void loadWeather(double lat, double lon) {
         WeatherCurrentUseCase.RequestParameter parameter = new WeatherCurrentUseCase.RequestParameter();
         parameter.type = WeatherCurrentUseCase.RequestParameter.TYPE_LOCATION;
@@ -132,15 +127,5 @@ public class CurrentLocationFragment extends Fragment {
             }
         });
 
-    }
-
-
-//    private void initService() {
-//        Intent intent = new Intent(getActivity(), LocationService.class);
-//        getActivity().startService(intent);
-//    }
-
-    private void showToastCheckInternet() {
-        Utils.showToastNotify(getContext(), getString(R.string.check_internet));
     }
 }

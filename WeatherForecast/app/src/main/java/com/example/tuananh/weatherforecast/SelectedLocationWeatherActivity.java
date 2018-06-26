@@ -44,34 +44,7 @@ public class SelectedLocationWeatherActivity extends BaseActivity {
         binding = DataBindingUtil.setContentView(this, R.layout.fragment_current_location);
         binding.setCurrentModel(viewModel);
 
-        selectedLocation = getIntent().getStringExtra("SelectedAddress");
-        for (String city: SplashScreenActivity.japanCityList) {
-            if (city.equalsIgnoreCase(selectedLocation) && !selectedLocation.equalsIgnoreCase("Osaka")
-                    && !selectedLocation.equalsIgnoreCase("Tokyo") && !selectedLocation.equalsIgnoreCase("Kyoto")) {
-                selectedLocation += "-ken";
-            }
-        }
-
-        loadCurrentWeatherByCityName(selectedLocation);
-
-        binding.btnDetail.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!Utils.isNetworkConnected(SelectedLocationWeatherActivity.this)) {
-//                    showToastCheckInternet();
-                } else {
-                    if (!selectedLocation.equalsIgnoreCase("")) {
-                        Intent detailIntent = new Intent(SelectedLocationWeatherActivity.this, ForecastDetailActivity.class);
-                        detailIntent.putExtra("SelectedAddress", selectedLocation);
-                        startActivity(detailIntent);
-                    } else {
-                        Utils.showToastNotify(SelectedLocationWeatherActivity.this, getString(R.string.check_data_not_found));
-                    }
-
-                }
-            }
-        });
-
+        init();
     }
 
     @Override
@@ -85,6 +58,37 @@ public class SelectedLocationWeatherActivity extends BaseActivity {
         }
     }
 
+    private void init() {
+        // Change special city name value
+        selectedLocation = getIntent().getStringExtra("SelectedAddress");
+        for (String city: SplashScreenActivity.japanCityList) {
+            if (city.equalsIgnoreCase(selectedLocation) && !selectedLocation.equalsIgnoreCase("Osaka")
+                    && !selectedLocation.equalsIgnoreCase("Tokyo") && !selectedLocation.equalsIgnoreCase("Kyoto")) {
+                selectedLocation += "-ken";
+            }
+        }
+
+        loadCurrentWeatherByCityName(selectedLocation);
+
+        binding.btnDetail.setOnClickListener(v -> {
+            if (!Utils.isNetworkConnected(SelectedLocationWeatherActivity.this)) {
+                Utils.showToastNotify(SelectedLocationWeatherActivity.this, getString(R.string.check_internet));
+            } else {
+                if (!selectedLocation.equalsIgnoreCase("")) {
+                    Intent detailIntent = new Intent(SelectedLocationWeatherActivity.this, ForecastDetailActivity.class);
+                    detailIntent.putExtra("SelectedAddress", selectedLocation);
+                    startActivity(detailIntent);
+                } else {
+                    Utils.showToastNotify(SelectedLocationWeatherActivity.this, getString(R.string.check_data_not_found));
+                }
+
+            }
+        });
+    }
+
+    /**
+     * Load weather information by city name
+     */
     private void loadCurrentWeatherByCityName(String city) {
         String appId = getResources().getString(R.string.appid_weather);
         WeatherCurrentUseCase.RequestParameter parameter = new WeatherCurrentUseCase.RequestParameter();

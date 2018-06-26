@@ -3,7 +3,6 @@ package com.example.tuananh.weatherforecast;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -91,22 +90,19 @@ public class ListAlarmNoteFragment extends Fragment {
             new AlertDialog.Builder(getActivity())
                     .setMessage(getResources().getString(R.string.check_delete))
                     .setCancelable(false)
-                    .setPositiveButton(getResources().getString(R.string.txt_yes), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            AlarmNote note = alarmList.get(position);
+                    .setPositiveButton(getResources().getString(R.string.txt_yes), (dialogInterface, i) -> {
+                        AlarmNote note = alarmList.get(position);
 
-                            MyDatabaseHelper db1 = new MyDatabaseHelper(getContext());
-                            db1.deleteAlarmNote(note);
-                            alarmList.remove(note);
-                            alarmAdapter.notifyDataSetChanged();
+                        MyDatabaseHelper db1 = new MyDatabaseHelper(getContext());
+                        db1.deleteAlarmNote(note);
+                        alarmList.remove(note);
+                        alarmAdapter.notifyDataSetChanged();
 
-                            Intent intent = new Intent("com.example.tuananh.weatherforecast.alertalarmnoteActivity");
-                            PendingIntent operation = PendingIntent.getActivity(getActivity().getApplicationContext(), note.getPendingId(), intent, Intent.FLAG_ACTIVITY_NEW_TASK);
-                            AlarmManager alarmManager = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
-                            alarmManager.cancel(operation);
+                        Intent intent = new Intent("com.example.tuananh.weatherforecast.alertalarmnoteActivity");
+                        PendingIntent operation = PendingIntent.getActivity(getActivity().getApplicationContext(), note.getPendingId(), intent, Intent.FLAG_ACTIVITY_NEW_TASK);
+                        AlarmManager alarmManager = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
+                        alarmManager.cancel(operation);
 
-                        }
                     })
                     .setNegativeButton(getResources().getString(R.string.txt_no), null)
                     .show();
