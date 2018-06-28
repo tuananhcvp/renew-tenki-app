@@ -326,6 +326,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="@string/btn_detail"
+                    android:onClick="@{() -> currentModel.onClickDetail()}"
                     style="@style/button"
                     />
             </LinearLayout>

@@ -1,16 +1,12 @@
 package com.example.tuananh.weatherforecast;
 
-import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.view.View;
 
 import com.example.tuananh.weatherforecast.databinding.FragmentCurrentLocationBinding;
-import com.example.tuananh.weatherforecast.model.current.OpenWeatherJSon;
 import com.example.tuananh.weatherforecast.utils.Utils;
 import com.example.tuananh.weatherforecast.utils.application.BaseActivity;
-import com.example.tuananh.weatherforecast.utils.usecase.BaseWeatherUseCase;
 import com.example.tuananh.weatherforecast.utils.usecase.WeatherCurrentUseCase;
 import com.example.tuananh.weatherforecast.viewmodel.CurrentForecastViewModel;
 
@@ -44,7 +40,8 @@ public class SelectedLocationWeatherActivity extends BaseActivity {
         binding = DataBindingUtil.setContentView(this, R.layout.fragment_current_location);
         binding.setCurrentModel(viewModel);
 
-        init();
+        changeSpecialCityName();
+        viewModel.init(viewModel.TYPE_NAME, selectedLocation);
     }
 
     @Override
@@ -58,8 +55,8 @@ public class SelectedLocationWeatherActivity extends BaseActivity {
         }
     }
 
-    private void init() {
-        // Change special city name value
+    // Change special city name value
+    private void changeSpecialCityName() {
         selectedLocation = getIntent().getStringExtra("SelectedAddress");
         for (String city: SplashScreenActivity.japanCityList) {
             if (city.equalsIgnoreCase(selectedLocation) && !selectedLocation.equalsIgnoreCase("Osaka")
@@ -67,46 +64,5 @@ public class SelectedLocationWeatherActivity extends BaseActivity {
                 selectedLocation += "-ken";
             }
         }
-
-        loadCurrentWeatherByCityName(selectedLocation);
-
-        binding.btnDetail.setOnClickListener(v -> {
-            if (!Utils.isNetworkConnected(SelectedLocationWeatherActivity.this)) {
-                Utils.showToastNotify(SelectedLocationWeatherActivity.this, getString(R.string.check_internet));
-            } else {
-                if (!selectedLocation.equalsIgnoreCase("")) {
-                    Intent detailIntent = new Intent(SelectedLocationWeatherActivity.this, ForecastDetailActivity.class);
-                    detailIntent.putExtra("SelectedAddress", selectedLocation);
-                    startActivity(detailIntent);
-                } else {
-                    Utils.showToastNotify(SelectedLocationWeatherActivity.this, getString(R.string.check_data_not_found));
-                }
-
-            }
-        });
-    }
-
-    /**
-     * Load weather information by city name
-     */
-    private void loadCurrentWeatherByCityName(String city) {
-        String appId = getResources().getString(R.string.appid_weather);
-        WeatherCurrentUseCase.RequestParameter parameter = new WeatherCurrentUseCase.RequestParameter();
-        parameter.type = WeatherCurrentUseCase.RequestParameter.TYPE_NAME;
-        parameter.appId = appId;
-        parameter.cityName = city;
-
-        useCase.execute(parameter, new BaseWeatherUseCase.UseCaseCallback<OpenWeatherJSon>() {
-            @Override
-            public void onSuccess(OpenWeatherJSon entity) {
-                viewModel.setModel(entity);
-            }
-
-            @Override
-            public void onError(Throwable t) {
-                t.printStackTrace();
-            }
-        });
-
     }
 }

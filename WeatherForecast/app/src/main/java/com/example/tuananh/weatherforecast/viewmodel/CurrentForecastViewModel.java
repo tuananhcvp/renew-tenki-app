@@ -1,13 +1,22 @@
 package com.example.tuananh.weatherforecast.viewmodel;
 
 import android.content.Context;
+import android.content.Intent;
 import android.databinding.BaseObservable;
 import android.databinding.Bindable;
+import android.os.Handler;
 import android.util.Log;
 
 import com.example.tuananh.weatherforecast.BR;
+import com.example.tuananh.weatherforecast.ForecastDetailActivity;
 import com.example.tuananh.weatherforecast.R;
+import com.example.tuananh.weatherforecast.SelectedLocationWeatherActivity;
+import com.example.tuananh.weatherforecast.SplashScreenActivity;
 import com.example.tuananh.weatherforecast.model.current.OpenWeatherJSon;
+import com.example.tuananh.weatherforecast.utils.SharedPreference;
+import com.example.tuananh.weatherforecast.utils.Utils;
+import com.example.tuananh.weatherforecast.utils.usecase.BaseWeatherUseCase;
+import com.example.tuananh.weatherforecast.utils.usecase.WeatherCurrentUseCase;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -20,31 +29,57 @@ import javax.inject.Inject;
  */
 
 public class CurrentForecastViewModel extends BaseObservable {
+    public final int TYPE_LOCATION = 1;
+    public final int TYPE_NAME = 2;
+
     NumberFormat format = new DecimalFormat("#0.0");
 
-    public String addressName;
-    public String imageIconUrl;
-    public String mainTemp;
-    public String mainState;
-    public String maxMinTemp;
-    public String wind;
-    public String press;
-    public String humidity;
-    public String state;
-    public String sunriseTime;
-    public String sunsetTime;
+    private String addressName;
+    private String imageIconUrl;
+    private String mainTemp;
+    private String mainState;
+    private String maxMinTemp;
+    private String wind;
+    private String press;
+    private String humidity;
+    private String state;
+    private String sunriseTime;
+    private String sunsetTime;
+    private String address = "";
+    private int type;
 
-    public Context context;
+    private Context context;
+    private WeatherCurrentUseCase useCase;
 
     @Inject
-    public CurrentForecastViewModel(Context context) {
+    public CurrentForecastViewModel(Context context, WeatherCurrentUseCase useCase) {
         this.context = context;
+        this.useCase = useCase;
+    }
+
+    public void init(int type, String address) {
+        this.type = type;
+        this.address = address;
+
+        switch (type) {
+            case TYPE_LOCATION:
+                // Load weather info
+                if (SplashScreenActivity.latitude == 0 && SplashScreenActivity.longitude == 0) {
+                    final Handler handler = new Handler();
+                    handler.postDelayed(()
+                            -> loadWeather(SharedPreference.getInstance(context).getDouble("latitude", 0), SharedPreference.getInstance(context).getDouble("longitude", 0)), 1000);
+                } else {
+                    loadWeather(SplashScreenActivity.latitude, SplashScreenActivity.longitude);
+                }
+
+            case TYPE_NAME:
+                loadCurrentWeatherByCityName(address);
+        }
     }
 
     public void setModel(OpenWeatherJSon openWeather) {
         addressName = openWeather.name;
         imageIconUrl = getIconSkyUrl(openWeather);
-        Log.e("TEST_TA","=> " + imageIconUrl);
         mainTemp = getStringTemp(openWeather.main.temp);
         mainState = openWeather.weather.get(0).main;
         maxMinTemp = getStringTemp(openWeather.main.tempMax) + "/" + getStringTemp(openWeather.main.tempMin);
@@ -122,6 +157,23 @@ public class CurrentForecastViewModel extends BaseObservable {
         return sunsetTime;
     }
 
+    public void onClickDetail() {
+        if (!address.equalsIgnoreCase("")) {
+            Intent intent = new Intent(context, ForecastDetailActivity.class);
+
+            if (type == TYPE_LOCATION) {
+                intent.putExtra("CurrentAddressName", address);
+            } else if (type == TYPE_NAME) {
+                intent.putExtra("SelectedAddress", address);
+            }
+
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        } else {
+            Utils.showToastNotify(context, context.getString(R.string.check_data_not_found));
+        }
+    }
+
     private String getIconSkyUrl(OpenWeatherJSon openWeather) {
         return context.getString(R.string.base_icon_url) + openWeather.weather.get(0).icon + ".png";
     }
@@ -133,6 +185,54 @@ public class CurrentForecastViewModel extends BaseObservable {
     private String getStringTime(long time) {
         Date timeSunrise = new Date(time * 1000);
         return timeSunrise.getHours() + ":" + timeSunrise.getMinutes();
+    }
+
+    /**
+     * Load current weather information by coordinate
+     */
+    private void loadWeather(double lat, double lon) {
+        WeatherCurrentUseCase.RequestParameter parameter = new WeatherCurrentUseCase.RequestParameter();
+        parameter.type = WeatherCurrentUseCase.RequestParameter.TYPE_LOCATION;
+        parameter.lat = lat;
+        parameter.lon = lon;
+        parameter.appId = context.getResources().getString(R.string.appid_weather);
+
+        useCase.execute(parameter, new BaseWeatherUseCase.UseCaseCallback<OpenWeatherJSon>() {
+            @Override
+            public void onSuccess(OpenWeatherJSon entity) {
+                setModel(entity);
+                address = entity.name;
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                t.printStackTrace();
+            }
+        });
+
+    }
+
+    /**
+     * Load weather information by city name
+     */
+    private void loadCurrentWeatherByCityName(String city) {
+        WeatherCurrentUseCase.RequestParameter parameter = new WeatherCurrentUseCase.RequestParameter();
+        parameter.type = WeatherCurrentUseCase.RequestParameter.TYPE_NAME;
+        parameter.appId = context.getResources().getString(R.string.appid_weather);;
+        parameter.cityName = city;
+
+        useCase.execute(parameter, new BaseWeatherUseCase.UseCaseCallback<OpenWeatherJSon>() {
+            @Override
+            public void onSuccess(OpenWeatherJSon entity) {
+                setModel(entity);
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                t.printStackTrace();
+            }
+        });
+
     }
 }
 

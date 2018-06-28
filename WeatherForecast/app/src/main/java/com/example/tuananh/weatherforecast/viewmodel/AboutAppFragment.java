@@ -38,8 +38,7 @@ public class AboutAppFragment extends Fragment {
 
         binding = FragmentAboutAppBinding.bind(layout);
 
-        binding.appName.setText(getResources().getString(R.string.txt_app_name)
-                + ": " + getResources().getString(R.string.app_name));
+        binding.appName.setText(getResources().getString(R.string.txt_app_name) + ": " + getResources().getString(R.string.app_name));
         binding.version.setText(getResources().getString(R.string.txt_version));
 
         return binding.getRoot();

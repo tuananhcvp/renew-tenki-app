@@ -2,13 +2,13 @@ package com.example.tuananh.weatherforecast;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.location.LocationManager;
 import android.os.Handler;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RelativeLayout;
@@ -67,6 +67,9 @@ public class WeatherMapsActivity extends BaseActivity implements OnMapReadyCallb
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather_maps);
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         getComponent().inject(this);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -133,6 +136,17 @@ public class WeatherMapsActivity extends BaseActivity implements OnMapReadyCallb
                 Place place = PlaceAutocomplete.getPlace(this, data);
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(place.getLatLng().latitude,place.getLatLng().longitude), 13));
             }
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                this.finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 

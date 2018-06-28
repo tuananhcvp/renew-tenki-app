@@ -45,7 +45,6 @@ public class ListAlarmNoteFragment extends Fragment {
         super.setUserVisibleHint(isVisibleToUser);
 
         if (isVisibleToUser) {
-            // called here
             if (isInitialize) {
                 updateListNote();
             }

@@ -1,19 +1,15 @@
 package com.example.tuananh.weatherforecast;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.tuananh.weatherforecast.databinding.FragmentCurrentLocationBinding;
-import com.example.tuananh.weatherforecast.model.current.OpenWeatherJSon;
 import com.example.tuananh.weatherforecast.utils.LocationService;
 import com.example.tuananh.weatherforecast.utils.Utils;
 import com.example.tuananh.weatherforecast.utils.application.BaseActivity;
-import com.example.tuananh.weatherforecast.utils.usecase.BaseWeatherUseCase;
 import com.example.tuananh.weatherforecast.utils.usecase.WeatherCurrentUseCase;
 import com.example.tuananh.weatherforecast.viewmodel.CurrentForecastViewModel;
 
@@ -31,7 +27,6 @@ public class CurrentLocationFragment extends Fragment {
 
     private String currentAddress = "";
     private FragmentCurrentLocationBinding binding;
-    private String appId;
 
     /**
      * CurrentLocationFragment initialize
@@ -71,61 +66,8 @@ public class CurrentLocationFragment extends Fragment {
         binding = FragmentCurrentLocationBinding.bind(layout);
         binding.setCurrentModel(viewModel);
 
-        appId = getActivity().getResources().getString(R.string.appid_weather);
-
-        init();
+        viewModel.init(viewModel.TYPE_LOCATION, "");
 
         return binding.getRoot();
-    }
-
-    private void init() {
-
-        // Load weather info
-        if (SplashScreenActivity.latitude == 0 && SplashScreenActivity.longitude == 0) {
-            final Handler handler = new Handler();
-            handler.postDelayed(() -> loadWeather(SplashScreenActivity.latitude, SplashScreenActivity.longitude), 1000);
-        } else {
-            loadWeather(SplashScreenActivity.latitude, SplashScreenActivity.longitude);
-        }
-
-        binding.btnDetail.setOnClickListener(v -> {
-            if (!Utils.isNetworkConnected(getActivity())) {
-                Utils.showToastNotify(getContext(), getString(R.string.check_internet));
-            } else {
-                if (!currentAddress.equalsIgnoreCase("")) {
-                    Intent detailIntent = new Intent(getActivity(), ForecastDetailActivity.class);
-                    detailIntent.putExtra("CurrentAddressName", currentAddress);
-                    startActivity(detailIntent);
-                } else {
-                    Utils.showToastNotify(getContext(), getString(R.string.check_data_not_found));
-                }
-
-            }
-        });
-    }
-
-    /**
-     * Load current weather information by coordinate
-     */
-    private void loadWeather(double lat, double lon) {
-        WeatherCurrentUseCase.RequestParameter parameter = new WeatherCurrentUseCase.RequestParameter();
-        parameter.type = WeatherCurrentUseCase.RequestParameter.TYPE_LOCATION;
-        parameter.lat = lat;
-        parameter.lon = lon;
-        parameter.appId = appId;
-
-        useCase.execute(parameter, new BaseWeatherUseCase.UseCaseCallback<OpenWeatherJSon>() {
-            @Override
-            public void onSuccess(OpenWeatherJSon entity) {
-                viewModel.setModel(entity);
-                currentAddress = entity.name;
-            }
-
-            @Override
-            public void onError(Throwable t) {
-                t.printStackTrace();
-            }
-        });
-
     }
 }
